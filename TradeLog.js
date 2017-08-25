@@ -67,19 +67,22 @@ module.exports = class{
     printHistory(){
         let allLines = [];
         this.history.forEach(trade => {
+            let p = parseInt(this.getProfit(trade) * 1000000) / 1000000;
             allLines.push({
                 "TYPE": trade.type, 
-                "PROFIT": this.getProfit(trade), 
-                "IN/OUT": trade.oPrice + " -> " + trade.cPrice, 
+                "PROFIT": (this.getProfit(trade) > 0 ? chalk.white.bgGreen(" " + p) : chalk.white.bgRed(p)), 
                 "DURATION": ((new Date(trade.cTime) - new Date(trade.oTime)) / 1000 / 60) + "min",
-                "RESULT": (this.getProfit(trade) > 0 ? chalk.green("+") : chalk.red("-"))
+                "IN/OUT": trade.oPrice + " -> " + trade.cPrice                
             });
         })
 
         console.log(columnify(allLines));
+    }
+
+    printOverallProfit(){
         let profit = this.getOverallProfit();
         let line = "Profit: " + (profit / this.history.length) + "/T    Overall: " + profit;
-        console.log((profit > 0 ? chalk.green(line) : chalk.red(line)));
+        console.log((profit > 0 ? chalk.white.bold.bgGreen(line) : chalk.white.bold.bgRed(line)));
     }
 
     getOverallProfit(){

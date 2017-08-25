@@ -40,7 +40,19 @@ module.exports = class{
         return this.dna;
     }
 
-    getOffspringDNA(){
+    getOffspringDNA(exploration){
+        
+        if(exploration == undefined)
+            exploration = 3;
+        
+        return {
+            slow:this.dna.slow + parseInt(((Math.random() * exploration * 2) - exploration)), 
+            fast:this.dna.fast + parseInt(((Math.random() * exploration * 2) - exploration))
+        };
+    }
 
+    getRandomDNA(){
+        let slow = parseInt(Math.random() * 90 + 30);
+        return {slow: slow, fast: parseInt(slow / (1 + (Math.random() * 5)))}
     }
 }
