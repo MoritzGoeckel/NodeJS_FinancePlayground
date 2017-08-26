@@ -16,7 +16,7 @@ module.exports = class{
         let short = this.smaShort.nextValue(close);
         let sl = short - long;
 
-        if(this.lastSl != NaN)
+        if(isNaN(this.lastSl) == false && isNaN(sl) == false)
         {
             if(this.lastSl > 0 && sl < 0 && this.market.isPositionOpen("SHORT") == false){
                 if(this.market.isPositionOpen("LONG"))
@@ -33,7 +33,8 @@ module.exports = class{
             }
         }
 
-        this.lastSl = sl;
+        if(isNaN(sl) == false)
+            this.lastSl = sl;
     }
 
     getDNA(){

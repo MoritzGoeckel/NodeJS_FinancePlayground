@@ -26,15 +26,17 @@ function callback(error, response, body) {
     var info = JSON.parse(body);
     console.log("Candles loaded: " + info.candles.length)
     console.log("Hours: " + (info.candles.length / 60))
+    console.log("Days: " + (info.candles.length / 60 / 24))
     
-    let bestStrats = optimizeStrategy(info.candles, MACrossover, 200, log => {return log.getTradeStats().semisharpe});
+    
+    let bestStrats = optimizeStrategy(info.candles, MACrossover, 1000, log => {return log.getTradeStats().semisharpe});
     bestStrats.forEach(strat => {strat.dna = JSON.stringify(strat.dna)})
     console.log("Best strategies:")
-    console.log(columnify(bestStrats));
+    console.log(columnify(bestStrats))
 
     let result = executeStrategy(info.candles, MACrossover, JSON.parse(bestStrats[0].dna));
     //result.tradeLog.printHistory();
-    console.log("Best strategy: " + bestStrats[0].dna);    
+    console.log("Best strategy: " + bestStrats[0].dna)   
     result.tradeLog.printStats();
 }
    

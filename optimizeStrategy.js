@@ -6,6 +6,8 @@ const Progress = clui.Progress;
 
 const logUpdate = require('log-update');
 
+var RunningAverage = require('running-average');
+
 module.exports = function(candles, strategyType, iterations, scoreFunction){
     const survivorsCount = 10;
     const offspringExploration = 20;
@@ -19,10 +21,12 @@ module.exports = function(candles, strategyType, iterations, scoreFunction){
     let dnaQueue = [];
 
     var thisProgressBar = new Progress(20);
-
+    var runningAverage = new RunningAverage();
+    
     for(let round = 0; round < iterations; round++)
     {
-        logUpdate(thisProgressBar.update(round + 1, iterations) + " Round " + round + "/" + iterations + "   DNA in Q: " + dnaQueue.length);        
+        let timeAtStart = new Date();
+        logUpdate(thisProgressBar.update(round + 1, iterations) + " Round " + round + "/" + iterations + "  DNAinQ: " + dnaQueue.length + "    Rounds/Min: " + Math.round(60 * 1000 / runningAverage.getAverage()));        
 
         //### ggf build new dnaQueue
         if(dnaQueue.length == 0){
@@ -61,12 +65,15 @@ module.exports = function(candles, strategyType, iterations, scoreFunction){
 
         //### Insert into bests
         let score = scoreFunction(result.tradeLog);
-        if(bestStrategies.length < survivorsCount || bestStrategies[bestStrategies.length - 1].score < score){
+        if(isNaN(score) == false && (bestStrategies.length < survivorsCount || bestStrategies[bestStrategies.length - 1].score < score)){
             bestStrategies.push({score: score, dna:result.strategy.getDNA(), instance:result.strategy});
             bestStrategies.sort((a, b) => {return (a.score < b.score ? 1 : -1)});
             while(bestStrategies.length > survivorsCount)
                 bestStrategies.pop();
         }
+
+        let elapsed = new Date() - timeAtStart;
+        runningAverage.push(elapsed);
     }
 
     bestStrategies.forEach(strategy => {delete strategy.instance;})
