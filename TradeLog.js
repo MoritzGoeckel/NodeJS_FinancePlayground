@@ -2,6 +2,8 @@ const chalk = require('chalk');
 const columnify = require('columnify')
 const stats = require("stats-lite")
 
+const _ = require('lodash');
+
 module.exports = class{
     constructor(){
         this.openPositions = {"LONG":null, "SHORT":null};
@@ -108,6 +110,6 @@ module.exports = class{
             this.stats.sharpe = this.stats.profit / this.stats.std;            
         }
 
-        return this.stats;
+        return _.cloneDeep(this.stats);
     }
 }

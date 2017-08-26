@@ -9,7 +9,7 @@ const logUpdate = require('log-update');
 var RunningAverage = require('running-average');
 
 module.exports = function(candles, strategyType, iterations, scoreFunction){
-    const survivorsCount = 10;
+    const survivorsCount = 15;
     const offspringExploration = 20;
     const maximumOffspringCount = 3;
     const maxAttemptsRandom = 3;

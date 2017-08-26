@@ -53,7 +53,9 @@ module.exports = class{
     }
 
     static getRandomDNA(){
-        let slow = parseInt(Math.random() * 100 + 30);
-        return {slow: slow, fast: parseInt(slow / (1 + (Math.random() * 5)))}
+        /*let slow = parseInt(Math.random() * 100 + 30);
+        return {slow: slow, fast: parseInt(slow / (1 + (Math.random() * 5)))}*/
+        
+        return {slow: parseInt(Math.random() * 200), fast: parseInt(Math.random() * 200)}
     }
 }
