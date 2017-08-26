@@ -23,6 +23,8 @@ module.exports = function(candles, strategyType, iterations, scoreFunction){
     var thisProgressBar = new Progress(20);
     var runningAverage = new RunningAverage();
     
+    console.log("Starting optimization...")
+
     for(let round = 0; round < iterations; round++)
     {
         let timeAtStart = new Date();
