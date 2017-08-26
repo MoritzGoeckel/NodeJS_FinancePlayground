@@ -1,5 +1,6 @@
 const chalk = require('chalk');
 const columnify = require('columnify')
+const stats = require("stats-lite")
 
 module.exports = class{
     constructor(){
@@ -79,18 +80,34 @@ module.exports = class{
         console.log(columnify(allLines));
     }
 
-    printOverallProfit(){
-        let profit = this.getOverallProfit();
-        let line = "Profit: " + (profit / this.history.length) + "/T    Overall: " + profit;
-        console.log((profit > 0 ? chalk.white.bold.bgGreen(line) : chalk.white.bold.bgRed(line)));
+    printStats(){
+        let stats = this.getTradeStats();
+        stats.profit = (stats.profit > 0 ? chalk.white.bold.bgGreen(stats.profit) : chalk.white.bold.bgRed(stats.profit))
+        console.log(columnify(stats));
     }
 
     getOverallProfit(){
-        let sum = 0;
-        this.history.forEach(trade => {
-            sum += this.getProfit(trade);
-        });
+        return this.getTradeStats().profit;
+    }
 
-        return sum;
+    getTradeStats(){
+        if(this.stats == undefined || this.stats.trades != this.history.length){
+            let tradeOutcomes = [];
+            let negativeOutcomes = [];
+
+            this.history.forEach(trade => {
+                let p = this.getProfit(trade);
+                if(p < 0)
+                    negativeOutcomes.push(p);
+
+                tradeOutcomes.push(p);
+            });
+            
+            this.stats = {trades:this.history.length, profit:stats.sum(tradeOutcomes), mean:stats.mean(tradeOutcomes), median:stats.median(tradeOutcomes), std:stats.stdev(tradeOutcomes), positive:Math.floor((this.history.length - negativeOutcomes.length) / this.history.length * 100) / 100, semistd:stats.stdev(negativeOutcomes), semivar:stats.variance(negativeOutcomes)};            
+            this.stats.semisharpe = this.stats.profit / this.stats.semistd;
+            this.stats.sharpe = this.stats.profit / this.stats.std;            
+        }
+
+        return this.stats;
     }
 }

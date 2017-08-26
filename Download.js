@@ -1,8 +1,13 @@
-let TradeLog = require("./TradeLog.js");
-let request = require("request");
-let crequest = require('cached-request')(request);
-//crequest.setCacheDirectory("tmp/cache");
-//crequest.setValue('ttl', 1000 * 60 * 60 * 24);
+const TradeLog = require("./TradeLog.js");
+const executeStrategy = require("./executeStrategy.js");
+const optimizeStrategy = require("./optimizeStrategy.js");
+
+const columnify = require('columnify')
+
+const request = require("request");
+const crequest = require('cached-request')(request);
+crequest.setCacheDirectory("tmp/cache");
+crequest.setValue('ttl', 1000 * 60 * 60 * 24 * 20); //20 Tage
 
 var Time = require('./Time.js');
 let time = new Time();
@@ -22,32 +27,15 @@ function callback(error, response, body) {
     console.log("Candles loaded: " + info.candles.length)
     console.log("Hours: " + (info.candles.length / 60))
     
-    let highest = {score: NaN, dna: null};
-    let nextDNA = {slow:60, fast:15};
+    let bestStrats = optimizeStrategy(info.candles, MACrossover, 200, log => {return log.getTradeStats().semisharpe});
+    bestStrats.forEach(strat => {strat.dna = JSON.stringify(strat.dna)})
+    console.log("Best strategies:")
+    console.log(columnify(bestStrats));
 
-    for(let round = 0; round < 1000; round++)
-    {
-        //Executing
-        let tradeLog = new TradeLog();
-        let strategy = new MACrossover(nextDNA, tradeLog);
-        
-        info.candles.forEach(candle => {
-            strategy.candleCompleted(candle);
-        });
-
-        let lastCandle = info.candles[info.candles.length - 1];
-        tradeLog.closeAll(lastCandle.bid.c, lastCandle.ask.c, lastCandle.time, "Ending simulation");
-        
-        //tradeLog.printHistory()
-        tradeLog.printOverallProfit()
-        console.log(highest)
-
-        if(isNaN(highest.score) || highest.score < tradeLog.getOverallProfit())
-            highest = {score: tradeLog.getOverallProfit(), dna:strategy.getDNA()};
-
-        nextDNA = strategy.getRandomDNA();
-        //End Executing
-    }
+    let result = executeStrategy(info.candles, MACrossover, JSON.parse(bestStrats[0].dna));
+    //result.tradeLog.printHistory();
+    console.log("Best strategy: " + bestStrats[0].dna);    
+    result.tradeLog.printStats();
 }
    
-crequest({url: practiceUrl + "/v3/instruments/EUR_USD/candles?price=BAM&granularity=M1&from=" + (time.getUTCTimestampSeconds() - time.days(1)) + "&to=" + time.getUTCTimestampSeconds(), headers: headers}, callback);
+crequest({url: practiceUrl + "/v3/instruments/EUR_USD/candles?price=BAM&granularity=M1&from=" + time.getUTCGetLastStartOfWeekSeconds() + "&to=" + time.getUTCGetLastEndOfWeekSeconds(), headers: headers}, callback);

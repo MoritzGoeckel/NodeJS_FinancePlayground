@@ -1,14 +1,14 @@
 module.exports = class{
 
-    minutes(amount){
+    minutesSeconds(amount){
         return amount * 60;
     }
 
-    hours(amount){
+    hoursSeconds(amount){
         return amount * 60 * 60;
     }
 
-    days(amount){
+    daysSeconds(amount){
         return amount * 60 * 60 * 24;
     }
 
@@ -30,4 +30,16 @@ module.exports = class{
         return date.getUTCHours() / 24 + date.getUTCMinutes() / 24 / 60 + date.getUTCSeconds() / 24 / 60 / 60;
     }
 
+    getUTCGetLastStartOfWeekSeconds(){
+        return this.getUTCGetLastEndOfWeekSeconds() - this.daysSeconds(5) + 2;
+    }
+
+    getUTCGetLastEndOfWeekSeconds(){
+        let daysBack = (new Date().getUTCDay() + 1) % 7;
+        let timestamp = new Date().getTime() - this.daysSeconds(daysBack) * 1000;        
+        let date = new Date(timestamp);
+        date.setUTCHours(0, 0, 0, -1);
+
+        return parseInt(date.getTime() / 1000);
+    }
 }
