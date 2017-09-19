@@ -47,8 +47,8 @@ module.exports = class{
             exploration = 3;
         
         return {
-            slow:this.dna.slow + parseInt(((Math.random() * exploration * 2) - exploration)), 
-            fast:this.dna.fast + parseInt(((Math.random() * exploration * 2) - exploration))
+            slow:this.dna.slow + parseInt(((Math.random() * exploration * 2) - exploration)) % 100, //Limit to 100
+            fast:this.dna.fast + parseInt(((Math.random() * exploration * 2) - exploration)) % 100
         };
     }
 
@@ -56,6 +56,6 @@ module.exports = class{
         /*let slow = parseInt(Math.random() * 100 + 30);
         return {slow: slow, fast: parseInt(slow / (1 + (Math.random() * 5)))}*/
         
-        return {slow: parseInt(Math.random() * 200), fast: parseInt(Math.random() * 200)}
+        return {slow: parseInt(Math.random() * 100), fast: parseInt(Math.random() * 100)}
     }
 }
