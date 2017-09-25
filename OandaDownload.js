@@ -16,7 +16,8 @@ const headers = {
     'Authorization': 'Bearer 1fe66ad3be0bf2d4fa579667945faa15-656562a41bc087ed9c6e91f3b3947f99'
 };
 
-module.exports.getInstrument = function(pair, granularity, fromSeconds, toSeconds){
+//Todo: Do better caching! (Timestamp / Pair / Granularity)
+module.exports.getInstrument = function(pair, granularity, fromSeconds, toSeconds, show){
     return new Promise(resolve => {
         let candles = [];
 
@@ -24,7 +25,9 @@ module.exports.getInstrument = function(pair, granularity, fromSeconds, toSecond
         let toDate = new Date(toSeconds * 1000);   
 
         let thisProgressBar = new Progress(20);
-        console.log("Loading " + pair + " " + granularity + "...");
+
+        if(show)
+            console.log("Loading " + pair + " " + granularity + "...");
 
         let doInstrumentRequest = function (actualFrom){
             let url = practiceUrl + "/v3/instruments/"+pair+"/candles?price=BAM&granularity=" + granularity + "&from=" + encodeURIComponent(actualFrom.toISOString()) + "&count=5000" + "&alignmentTimezone=Etc%2FUTC";
@@ -61,10 +64,14 @@ module.exports.getInstrument = function(pair, granularity, fromSeconds, toSecond
                     console.log("Going to: ", toDate.toISOString())*/
                     
                     let progress = (lastDate - fromDate) / (toDate - fromDate);
-                    logUpdate(thisProgressBar.update(progress * 100, 100) + " " + Math.round(progress * 100) + "/" + 100);                        
+
+                    if(show)
+                        logUpdate(thisProgressBar.update(progress * 100, 100) + " " + Math.round(progress * 100) + "/" + 100);                        
 
                     if(done){
-                        console.log("Done loading " + pair + " " + granularity + " ("+candles.length+" candles)")
+                        if(show)
+                            console.log("Done loading " + pair + " " + granularity + " ("+candles.length+" candles)")
+                        
                         resolve(candles);
                     }
                     else
