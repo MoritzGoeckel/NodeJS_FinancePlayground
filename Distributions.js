@@ -10,7 +10,7 @@ module.exports.getReturnsDistribution = function(candles, candleDistance){
         //Relative: (futureCandle.mid.c - candle.mid.c) / candle.mid.c)
     }
 
-    return returns.sort();
+    return returns.sort(function(a,b) { return a - b;});
 }
 
 module.exports.getRelativeReturnsDistribution = function(candles, candleDistance){
@@ -22,7 +22,7 @@ module.exports.getRelativeReturnsDistribution = function(candles, candleDistance
         returns.push((futureCandle.mid.c - candle.mid.c) / candle.mid.c);
     }
 
-    return returns.sort();
+    return returns.sort(function(a,b) { return a - b;});
 }
 
 module.exports.getAverageSpread = function(candles){
@@ -33,4 +33,12 @@ module.exports.getAverageSpread = function(candles){
     }
 
     return stats.mean(spreads);
+}
+
+module.exports.getUnderValueChance = function(distribution, value){
+    for(let i = 1; i < distribution.length; i++){
+        if(distribution[i - 1] < value && distribution[i] >= value)
+            return i / distribution.length;
+    }
+    return NaN;
 }

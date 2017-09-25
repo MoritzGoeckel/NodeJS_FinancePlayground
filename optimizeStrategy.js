@@ -71,7 +71,7 @@ module.exports = function(candles, strategyType, iterations, scoreFunction){
             bestStrategies.push({score: score, dna:result.strategy.getDNA(), instance:result.strategy});
             bestStrategies.sort((a, b) => {return (a.score < b.score ? 1 : -1)});
             while(bestStrategies.length > survivorsCount)
-                bestStrategies.pop();
+                bestStrategies.pop(); //Maybe more random?
         }
 
         let elapsed = new Date() - timeAtStart;

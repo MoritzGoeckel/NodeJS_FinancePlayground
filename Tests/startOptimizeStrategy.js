@@ -24,7 +24,7 @@ async function start(){
 }
 
 function optimize(pair, candles) {
-    let bestStrats = optimizeStrategy(candles, MACrossover, 1000, log => {return log.getTradeStats().semisharpe});
+    let bestStrats = optimizeStrategy(candles, MACrossover, 1000, log => {return log.getTradeStats().sharpe}); //semi
     bestStrats.forEach(strat => {strat.dna = JSON.stringify(strat.dna)})
     
     //console.log(columnify(bestStrats))
@@ -36,5 +36,5 @@ function optimize(pair, candles) {
 
     let stats = result.tradeLog.getTradeStats();
     if(stats.profit > 0) //Really? :D
-        fs.appendFileSync('optimized.json', JSON.stringify({instrument:pair, dna:JSON.parse(bestStrats[0].dna), stats:stats}) + ",\r\n");        
+        fs.appendFileSync('optimized.json', JSON.stringify({instrument:pair, dna:JSON.parse(bestStrats[0].dna), stats:stats}) + "\r\n");        
 }
