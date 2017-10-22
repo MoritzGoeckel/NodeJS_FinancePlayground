@@ -1,5 +1,5 @@
 const TradeLog = require("./TradeLog.js");
-const executeStrategy = require("./executeStrategy.js");
+const StrategyTester = require("./StrategyTester.js");
 
 const clui = require('clui');
 const Progress = clui.Progress;
@@ -63,7 +63,7 @@ module.exports = function(candles, strategyType, iterations, scoreFunction){
         }
         
         //### Create strategy
-        let result = executeStrategy(candles, strategyType, dnaQueue.shift());
+        let result = StrategyTester.executeStrategy(candles, strategyType, dnaQueue.shift());
 
         //### Insert into bests
         let score = scoreFunction(result.tradeLog);

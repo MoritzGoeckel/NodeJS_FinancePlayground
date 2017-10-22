@@ -24,6 +24,8 @@ module.exports.getInstrument = function(pair, granularity, fromSeconds, toSecond
         let fromDate = new Date(fromSeconds * 1000);
         let toDate = new Date(toSeconds * 1000);   
 
+        let lastRecordedCandleDate = 0;
+
         let thisProgressBar = new Progress(20);
 
         if(show)
@@ -45,13 +47,17 @@ module.exports.getInstrument = function(pair, granularity, fromSeconds, toSecond
                     let done = false;
                     for(let candle in parsed.candles){
                         let candleDate = new Date(Date.parse(parsed.candles[candle].time));
-                        if(candleDate <= toDate)
+                        if(candleDate <= toDate && candleDate > lastRecordedCandleDate){
                             candles.push(parsed.candles[candle]);
+                            lastRecordedCandleDate = candleDate;
+                        }
                         else{
                             done = true;
                             break;
                         }
                     }
+
+                    //console.log("LEN! " + parsed.candles.length)
                     
                     let lastDate = new Date(Date.parse(candles[candles.length - 1].time));
                     let firstDate = new Date(Date.parse(candles[0].time));
@@ -61,7 +67,8 @@ module.exports.getInstrument = function(pair, granularity, fromSeconds, toSecond
                     console.log("First recievied: ", firstDate.toISOString())                                                                  
                     console.log("Last recievied: ", lastDate.toISOString())
                     console.log("From: ", fromDate.toISOString())                                
-                    console.log("Going to: ", toDate.toISOString())*/
+                    console.log("Going to: ", toDate.toISOString())
+                    console.log("")*/
                     
                     let progress = (lastDate - fromDate) / (toDate - fromDate);
 

@@ -3,7 +3,7 @@ module.exports = class{
 
     }
 
-    candleCompleted(candle){
+    candleCompleted(candles){
 
     }
 

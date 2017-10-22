@@ -1,6 +1,6 @@
 const TradeLog = require("./TradeLog.js");
 
-module.exports = function(candles, strategyType, dna){
+module.exports.executeStrategy = function(candles, strategyType, dna){
     let tradeLog = new TradeLog();
     let strategy = new strategyType(dna, tradeLog);
 
