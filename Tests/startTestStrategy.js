@@ -1,9 +1,6 @@
 const TradeLog = require("./TradeLog.js");
 const executeStrategy = require("./executeStrategy.js");
-const optimizeStrategy = require("./optimizeStrategy.js");
 const Downloader = require("./OandaDownload.js");
-const columnify = require('columnify')
-const fs = require('fs');
 
 var Time = require('./Time.js');
 let time = new Time();

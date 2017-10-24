@@ -24,15 +24,19 @@ async function start(){
 }
 
 function optimize(pair, candles) {
+    //Optimize / Train
     let bestStrats = optimizeStrategy(candles, MACrossover, 1000, log => {return log.getTradeStats().sharpe}); //semi
     bestStrats.forEach(strat => {strat.dna = JSON.stringify(strat.dna)})
     
     //console.log(columnify(bestStrats))
 
+    //Get results
     let result = executeStrategy(candles, MACrossover, JSON.parse(bestStrats[0].dna));
     //result.tradeLog.printHistory();
     console.log("### Best strategy: " + bestStrats[0].dna)   
     result.tradeLog.printStats();
+
+    //Validate?? Todo
 
     let stats = result.tradeLog.getTradeStats();
     if(stats.profit > 0) //Really? :D

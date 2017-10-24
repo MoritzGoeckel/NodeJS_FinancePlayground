@@ -1,14 +1,16 @@
-const Time = require("./Time.js");
+const Time = require("../Time.js");
 let time = new Time();
 
-const MonteCarlo = require("./MonteCarlo.js");
+const MonteCarlo = require("../MonteCarlo.js");
 
 module.exports = class{
-    constructor(dna, market){
+    constructor(dna, markets){
         this.candleHistories = {};
-        this.market = market;
+        this.markets = markets;
         this.dna = dna;
         this.lastAnalysisTime = 0;
+
+        this.firstSeenTime = NaN;
     }
 
     //Expecting as candles
@@ -26,6 +28,9 @@ module.exports = class{
 
     candleCompleted(candles){
         //Add new candle
+        if(isNaN(this.firstSeenTime))
+            this.firstSeenTime = new Date(Date.parse(candles[Object.keys(candles)[0]].time)).getTime();
+
         for(let pair in candles){
             if(this.candleHistories[pair] == undefined)
                 this.candleHistories[pair] = [];
@@ -34,7 +39,7 @@ module.exports = class{
         }
 
         //Get the time now
-        let currentTime = new Date(Date.parse(this.candleHistories[Object.keys(pair)[0]].time)).getTime();
+        let currentTime = new Date(Date.parse(candles[Object.keys(candles)[0]].time)).getTime();
 
         //Remove old ones
         for(let pair in this.candleHistories){
@@ -42,25 +47,33 @@ module.exports = class{
                 this.candleHistories[pair].shift();
         }
 
-        //Analyse on interval
-        if(this.lastAnalysisTime + this.dna.analysisIntervalSeconds < currentTime){
-            this.lastAnalysisTime = currentTime;
-
-            //Close positions TODO!
-
-            //Check if there is enough data for lookbacktime TODO!
+        //Analyse on interval, only when enough data
+        if(this.lastAnalysisTime + (this.dna.analysisIntervalSeconds * 1000) < currentTime && this.firstSeenTime + (this.dna.lookbackSeconds * 1000) < currentTime){
+            this.lastAnalysisTime = currentTime;           
 
             for(let pair in this.candleHistories){
                 let stats = MonteCarlo.getMonteCarloStatistics(this.candleHistories[pair], this.dna.analysisUnitsDistance);
 
                 let now = this.candleHistories[pair][this.candleHistories[pair].length - 1];
+                now.time = new Date(Date.parse(now.time)).getTime(); //Seltsam...
 
-                if(stats.LongProfitProbability > this.dna.threshold){
-                    //this.market.openPosition("LONG", now.ask.c, now.time, pair) DOES NOT WORK BECAUSE OF MULTIPAIR TODO!
-                }
-                if(stats.ShortProfitProbability > this.dna.threshold){
-                    //this.market.openPosition("SHORT", now.bid.c, now.time, pair)
-                }
+                let goLong = stats.LongProfitProbability > this.dna.threshold;
+                let goShort = stats.ShortProfitProbability > this.dna.threshold;
+
+                //eighter this or the one below
+                this.markets[pair].closeAll(now.bid.c, now.ask.c, now.time, "");
+
+                /*if(this.markets[pair].isPositionOpen("LONG") && goLong == false)
+                    this.markets[pair].closePosition("LONG", now.bid.c, now.time, "");
+
+                if(this.markets[pair].isPositionOpen("SHORT") && goShort == false)
+                    this.markets[pair].closePosition("SHORT", now.ask.c, now.time, "");*/
+
+                if(this.markets[pair].isPositionOpen("LONG") == false && goLong)
+                    this.markets[pair].openPosition("LONG", now.ask.c, now.time, "")
+
+                if(this.markets[pair].isPositionOpen("SHORT") == false && goShort)
+                    this.markets[pair].openPosition("SHORT", now.bid.c, now.time, "")
             }
 
             //Todo: Do best trades / trade size??
@@ -76,6 +89,6 @@ module.exports = class{
     }
 
     static getRandomDNA(){
-        
+        return {analysisUnitsDistance:0, analysisIntervalSeconds:0, threshold:0, lookbackSeconds:0}
     }
 }
