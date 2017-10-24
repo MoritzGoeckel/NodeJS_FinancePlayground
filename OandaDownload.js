@@ -44,12 +44,19 @@ module.exports.getInstrument = function(pair, granularity, fromSeconds, toSecond
                     if(parsed.candles == undefined)
                         console.log(parsed)
                     
+                    /*console.log(new Date(Date.parse(parsed.candles[0].time)))
+                    console.log("TOOOO")
+                    console.log(new Date(Date.parse(parsed.candles[parsed.candles.length - 1].time)))*/
+                    
+
                     let done = false;
                     for(let candle in parsed.candles){
                         let candleDate = new Date(Date.parse(parsed.candles[candle].time));
-                        if(candleDate <= toDate && candleDate > lastRecordedCandleDate){
-                            candles.push(parsed.candles[candle]);
-                            lastRecordedCandleDate = candleDate;
+                        if(candleDate <= toDate){
+                            if(candleDate > lastRecordedCandleDate){
+                                candles.push(parsed.candles[candle]);
+                                lastRecordedCandleDate = candleDate;
+                            } //Could not stop here...
                         }
                         else{
                             done = true;
@@ -66,6 +73,7 @@ module.exports.getInstrument = function(pair, granularity, fromSeconds, toSecond
                     console.log("ActualFrom: " + actualFrom.toISOString())    
                     console.log("First recievied: ", firstDate.toISOString())                                                                  
                     console.log("Last recievied: ", lastDate.toISOString())
+
                     console.log("From: ", fromDate.toISOString())                                
                     console.log("Going to: ", toDate.toISOString())
                     console.log("")*/
@@ -73,7 +81,7 @@ module.exports.getInstrument = function(pair, granularity, fromSeconds, toSecond
                     let progress = (lastDate - fromDate) / (toDate - fromDate);
 
                     if(show)
-                        logUpdate(thisProgressBar.update(progress * 100, 100) + " " + Math.round(progress * 100) + "/" + 100);                        
+                        logUpdate(thisProgressBar.update(progress * 100, 100));                      
 
                     if(done){
                         if(show)
@@ -81,8 +89,9 @@ module.exports.getInstrument = function(pair, granularity, fromSeconds, toSecond
                         
                         resolve(candles);
                     }
-                    else
+                    else{
                         doInstrumentRequest(lastDate);
+                    }
                 }
             });
         }

@@ -35,7 +35,8 @@ module.exports = class{
             if(this.candleHistories[pair] == undefined)
                 this.candleHistories[pair] = [];
             
-            this.candleHistories[pair].push(candles[pair]);
+            if(candles[pair] != undefined) // hm :/
+                this.candleHistories[pair].push(candles[pair]);
         }
 
         //Get the time now
@@ -60,6 +61,9 @@ module.exports = class{
                 let goLong = stats.LongProfitProbability > this.dna.threshold;
                 let goShort = stats.ShortProfitProbability > this.dna.threshold;
 
+                if(now == undefined)
+                    console.log("MultipairMonteCarlo.candleCompleted now undefined");
+
                 //eighter this or the one below
                 this.markets[pair].closeAll(now.bid.c, now.ask.c, now.time, "");
 
@@ -68,6 +72,13 @@ module.exports = class{
 
                 if(this.markets[pair].isPositionOpen("SHORT") && goShort == false)
                     this.markets[pair].closePosition("SHORT", now.ask.c, now.time, "");*/
+                
+                if(this.dna.reverse)
+                {
+                    let newShort = goLong;
+                    goLong = goShort;
+                    goShort = newShort;
+                }
 
                 if(this.markets[pair].isPositionOpen("LONG") == false && goLong)
                     this.markets[pair].openPosition("LONG", now.ask.c, now.time, "")

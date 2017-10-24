@@ -9,7 +9,6 @@ async function start(){
     let list = await dl.getInstrument("EUR_USD", "M5", from, to, true)
     console.log(list.length)
     console.log("Callback!")
-    console.log(list)
 }
 
 start();

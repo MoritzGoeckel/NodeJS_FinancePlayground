@@ -30,25 +30,35 @@ module.exports.executeStrategy = function(candles, strategyType, dna){
 module.exports.executeMultipairStrategy = function(pairsAndCandles, strategyType, dna){
     let tradeLogs = {};
     
-    for(let pair in pairsAndCandles)
+    let lengthOfLongestCandleList = 0;
+
+    for(let pair in pairsAndCandles){
         tradeLogs[pair] = new TradeLog();
+
+        //Find pair with longest history 
+        //(This is all kinda inpercise as different timed candles will come into the strategy at the same time)
+        if(pairsAndCandles[pair].length > lengthOfLongestCandleList)
+            lengthOfLongestCandleList = pairsAndCandles[pair].length;
+    }
     
     let strategy = new strategyType(dna, tradeLogs);
 
-    let candleInput = {};
-    for(let candleNum = 0; candleNum < pairsAndCandles[Object.keys(pairsAndCandles)[0]].length; candleNum++){
+
+    let lastSeenCandleForPairs = {};
+
+    for(let candleNum = 0; candleNum < lengthOfLongestCandleList; candleNum++){
         //Build input
-        candleInput = {};
         for(let pair in pairsAndCandles){
-            candleInput[pair] = pairsAndCandles[pair][candleNum];
+            if(pairsAndCandles[pair][candleNum] != undefined)
+                lastSeenCandleForPairs[pair] = pairsAndCandles[pair][candleNum];
         }
 
-        strategy.candleCompleted(candleInput);
+        strategy.candleCompleted(lastSeenCandleForPairs);
     }
 
     //Closing all positions
     for(let pair in pairsAndCandles)
-        tradeLogs[pair].closeAll(candleInput[pair].bid.c, candleInput[pair].ask.c, candleInput[pair].time, "Ending simulation");
+        tradeLogs[pair].closeAll(lastSeenCandleForPairs[pair].bid.c, lastSeenCandleForPairs[pair].ask.c, lastSeenCandleForPairs[pair].time, "Ending simulation");
 
     return {tradeLogs: tradeLogs, strategy:strategy};
 }

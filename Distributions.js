@@ -28,6 +28,9 @@ module.exports.getRelativeReturnsDistribution = function(candles, candleDistance
 module.exports.getAverageSpread = function(candles){
     let spreads = [];
     for(let i = 0; i < candles.length; i++){
+        if(candles[i] == undefined)
+            console.log("Distributions.AverageSpread candle undefined");
+
         spreads.push(candles[i].ask.c - candles[i].bid.c);
         spreads.push(candles[i].ask.o - candles[i].bid.o);
     }
