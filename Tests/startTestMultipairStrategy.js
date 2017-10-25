@@ -13,11 +13,11 @@ process.on('unhandledRejection', r => console.log(r))
 let to = time.getUTCGetLastEndOfWeekSeconds();
 let from = to - time.daysSeconds(300);
 
-let interval = time.daysSeconds(1) / 2
+let interval = time.daysSeconds(1)
 //console.log(interval / 60 / 10)
 
 testStrategyOnTimeframe("H1", from, to, MultipairMonteCarlo, 
-    {analysisUnitsDistance:interval / 60 / 60, analysisIntervalSeconds:interval, threshold:0.6, lookbackSeconds:time.daysSeconds(7), reverse:false}); 
+    {analysisUnitsDistance:interval / 60 / 60, analysisIntervalSeconds:interval, threshold:0.6, lookbackSeconds:time.daysSeconds(30), reverse:false}); 
 
 async function testStrategyOnTimeframe(granularity, from, to, strategyType, dna) {
     let pairs = [];
